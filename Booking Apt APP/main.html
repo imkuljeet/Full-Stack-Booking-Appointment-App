@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Coolest Project</title>
+    <style>
+        body{
+            background-image:url(flat-world-post-day-background_23-2149084335.jpg);
+            background-repeat: no-repeat;
+            background-size: cover;
+            
+        }
+        form{
+            text-align: center;
+            border: 1px solid;
+            border-color: black;
+            width: 828px;
+            margin-left: 209px;
+            background-color: white;
+        }
+        input{
+            width: 736px;
+            height: 18px;
+        }
+        h3{
+            color: orange;
+        }
+        ul{
+            text-align: center;
+        }
+        
+    </style>
+</head>
+<body>
+    <form onsubmit="addToLocalStorage(event)">
+        <h3>Book A Call</h3>
+        <h6>Book a call and our representative will call you within 1 hr of selected time.</h6><hr>
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name = "ourname" required><br><br>
+        <label for="emailour">Email:</label><br>
+        <input type="email" id="emailour" name="email" required><br><br>
+        <label for="phnno">Ph No.:</label><br>
+        <input type="tel" id="phnno" name="Ph_no"><br><br>
+        <input type="submit" value="GET A CALL" style="width: 100px;height: 50px;color: white;background-color: orange;font-weight: bold;"><br><br>
+    </form>
+    <ul>
+                
+    </ul>
+   <script>
+            function addToLocalStorage(event){
+            event.preventDefault();
+            let name = event.target.ourname.value;
+            let email = event.target.emailour.value; // Corrected here
+            let Phn = event.target.Ph_no.value;
+
+            let obj = {
+                Name : name,
+                Email : email,
+                Phone_No : Phn
+            };
+    
+            // localStorage.setItem(email,JSON.stringify(obj));
+            axios.post("http://localhost:3000/user/add-user",obj)
+            .then((res)=>{
+                console.log(res);
+            }).catch((error)=>{
+                document.body.innerHTML += "<h4>something went wrong</h4>";
+                console.log(error);
+            })
+
+            
+            showOnScreen(obj);
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+    axios.get("http://localhost:3000/user/get-users").then((res) => {
+        console.log(res);
+
+        for (var i = 0; i < res.data.allUsers.length; i++) {
+            showOnScreen(res.data.allUsers[i]);
+            
+        }
+    }).catch((error) => {
+        console.log(error);
+    })
+});
+
+
+       function showOnScreen(obj) {
+    let ul = document.querySelector("ul");
+    let child = document.createElement("li");
+    child.textContent = obj.name + '--' + obj.email + '--' + obj.Phn;
+
+    let delt = document.createElement('input');
+    delt.type = "button";
+    delt.value = "DELETE";
+    delt.style = "width : 100px";
+
+    let edt = document.createElement("input");
+    edt.type = "button";
+    edt.value = "EDIT";
+    edt.style = "width : 100px";
+    const userId = obj.id;
+
+    delt.onclick = () => {
+        // localStorage.removeItem(obj.email);
+        axios.delete(`http://localhost:3000/user/delete-user/${userId}`)
+            .then((res) => {
+                ul.removeChild(child);
+            }).catch((err) => {
+                console.log(err);
+            })
+    }
+
+    edt.onclick = () => {
+        // localStorage.removeItem(obj.email);
+        document.getElementById("name").value = obj.name;
+        document.getElementById("emailour").value = obj.email;
+        document.getElementById("phnno").value = obj.phone_no;
+
+        axios.delete(`http://localhost:3000/user/delete-user/${userId}`)
+            .then((res) => {
+                ul.removeChild(child);
+            }).catch((err) => {
+                console.log(err);
+            })
+    }
+
+    child.appendChild(delt);
+    child.appendChild(edt);
+    ul.appendChild(child);
+}
+
+   </script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+    
+    
+</body>
+</html>
